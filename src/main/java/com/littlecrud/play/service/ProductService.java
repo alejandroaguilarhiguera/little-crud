@@ -1,12 +1,14 @@
 package com.littlecrud.play.service;
 
+import com.littlecrud.play.dto.ProductDto;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import com.littlecrud.play.entity.Product;
 import com.littlecrud.play.exception.ProductNotFoundException;
 import com.littlecrud.play.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,8 +25,8 @@ public class ProductService {
     /**
      * Consulta todos los productos.
      */
-    public List<Product> getAllProducts() {
-        return this.productRepository.findByDeletedAtIsNull();
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return this.productRepository.findByDeletedAtIsNull(pageable);
     }
 
     /**
@@ -37,7 +39,11 @@ public class ProductService {
     /**
      * Agrega un nuevo producto.
      */
-    public Product createProduct(Product product) {
+    public Product createProduct(ProductDto dto) {
+        Product product = new Product();
+        product.setName(dto.name());
+        product.setPrice(dto.price());
+        product.setStock(dto.stock());
         return this.productRepository.save(product);
     }
 
@@ -60,16 +66,16 @@ public class ProductService {
     /**
      * Actualiza parcialmente un producto.
      */
-    public Product updateProduct(Integer id, Product product) {
+    public Product updateProduct(Integer id, ProductDto dto) {
         Product productUpdated = findById(id);
 
-        Optional.ofNullable(product.getName())
+        Optional.ofNullable(dto.name())
                 .ifPresent(productUpdated::setName);
 
-        Optional.ofNullable(product.getStock())
+        Optional.ofNullable(dto.stock())
                 .ifPresent(productUpdated::setStock);
 
-        Optional.ofNullable(product.getPrice())
+        Optional.ofNullable(dto.price())
                 .ifPresent(productUpdated::setPrice);
         return this.productRepository.save(productUpdated);
     }
@@ -86,7 +92,7 @@ public class ProductService {
     /**
      * Consulta los productos eliminados.
      */
-    public List<Product> getDeletedProducts() {
-        return this.productRepository.findByDeletedAtIsNotNull();
+    public Page<Product> getDeletedProducts(Pageable pageable) {
+        return this.productRepository.findByDeletedAtIsNotNull(pageable);
     }
 }

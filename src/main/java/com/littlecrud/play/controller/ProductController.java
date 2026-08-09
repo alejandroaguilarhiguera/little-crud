@@ -1,13 +1,15 @@
 package com.littlecrud.play.controller;
 
+import com.littlecrud.play.dto.ProductDto;
+import com.littlecrud.play.dto.ProductResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import com.littlecrud.play.entity.Product;
 import com.littlecrud.play.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-import com.littlecrud.play.controller.ProductResponse;
 
 @RestController
 @RequestMapping("/products")
@@ -20,12 +22,14 @@ public class ProductController {
     }
 
     /**
-     * GET /products
+     * GET /products?page=0&size=10
+     * GET /products?page=1&size=20
+     * GET /products?page=0&size=10&sort=name,asc
      * Consulta todos los productos.
      */
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productService.getAllProducts(pageable);
     }
 
     /**
@@ -42,7 +46,7 @@ public class ProductController {
      * Agrega un nuevo producto.
      */
     @PostMapping
-    public ProductResponse createProduct(@Valid @RequestBody Product product) {
+    public ProductResponse createProduct(@Valid @RequestBody ProductDto product) {
         Product createdProduct = productService.createProduct(product);
         return new ProductResponse("El producto fue creado correctamente", createdProduct);
     }
@@ -72,8 +76,8 @@ public class ProductController {
     @PatchMapping("/{id}")
     public ProductResponse updateProduct(
             @PathVariable Integer id,
-            @RequestBody Product product) {
-        Product updatedProduct = productService.updateProduct(id, product);
+            @Valid @RequestBody ProductDto dto) {
+        Product updatedProduct = productService.updateProduct(id, dto);
         return new ProductResponse("El producto fue actualizado correctamente", updatedProduct);
     }
 
@@ -92,7 +96,7 @@ public class ProductController {
      * Consulta los productos eliminados.
      */
     @GetMapping("/trashed")
-    public List<Product> getDeletedProducts() {
-        return productService.getDeletedProducts();
+    public Page<Product> getDeletedProducts(Pageable pageable) {
+        return productService.getDeletedProducts(pageable);
     }
 }

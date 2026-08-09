@@ -36,9 +36,11 @@ public class GlobalExceptionHandler {
                         error.getDefaultMessage()
                 ))
                 .toList();
-
+        String message = errors.size() == 1
+                ? errors.getFirst().message()
+                : "Errores de validación";
         ValidationErrorResponse response = new ValidationErrorResponse(
-                "Errores de validación",
+                message,
                 errors
         );
 
